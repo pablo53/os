@@ -178,7 +178,7 @@ int set_intr_hndl_force(int intno, intr_hndl_t intr_hndl)
   return res;
 }
 
-gate_dsc_t inline init_intrgate(ptr_t hfaddr)
+gate_dsc_t static inline init_intrgate(ptr_t hfaddr)
 {
   gate_dsc_t gate_dsc;
   gate_dsc.lo_offset = (u16)(0xffff & (u32)(hfaddr));
@@ -189,7 +189,7 @@ gate_dsc_t inline init_intrgate(ptr_t hfaddr)
   return gate_dsc;
 }
 
-gate_dsc_t inline init_trapgate(ptr_t hfaddr)
+gate_dsc_t static inline init_trapgate(ptr_t hfaddr)
 {
   gate_dsc_t gate_dsc;
   gate_dsc.lo_offset = (u16)(0xffff & (u32)(hfaddr));

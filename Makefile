@@ -1,12 +1,13 @@
 CC=gcc
 AS=as
 LD=ld
-CFLAGS=-Wall -ansi -std=c99 -pedantic -O0
-
+CFLAGS=-Wall -ansi -std=c99 -pedantic -O0 -m32 -fno-pic -fno-stack-protector
+AFLAGS=--32
+LDFLAGS=-m elf_i386
 
 all: boot.img tools/cdboot
-	rm -f iso.img
-	tools/cdboot boot.img iso.img
+	rm -f os.iso
+	tools/cdboot boot.img os.iso
 
 boot.img: os main.bin tools/algnfl tools/asecfl
 	cat os > boot.img
@@ -15,10 +16,10 @@ boot.img: os main.bin tools/algnfl tools/asecfl
 	tools/asecfl boot.img
 
 os: os.o
-	$(LD) --oformat binary -Ttext 0 -o os os.o
+	$(LD) $(LDFLAGS) --oformat binary -Ttext 0 -o os os.o
 
 os.o: os.s os_const.s
-	$(AS) -o os.o os.s
+	$(AS) $(AFLAGS) -o os.o os.s
 
 os_const.s: main.bin tools/ffsize tools/fabss main.mmap.txt
 	$(shell grep '^\.bss\s*0x[0-9a-fA-F]*\s*0x[0-9a-fA-F]*\s*' main.mmap.txt | tr -s ' ' | cut -d' ' -f2-3 | sed 's:^:tools/fabss main.bin :')
@@ -26,7 +27,7 @@ os_const.s: main.bin tools/ffsize tools/fabss main.mmap.txt
 	tools/ffsize -a8 main.bin "\nC_C_CODE_LENGTH = %d\n" >> os_const.s
 
 main.bin main.mmap.txt: main.o
-	$(LD) -Map main.mmap.txt --oformat binary -Ttext 0 -o main.bin main.o
+	$(LD) $(LDFLAGS) -Map main.mmap.txt --oformat binary -Ttext 0 -o main.bin main.o
 
 main.o: main.c main.h main/lterm.c main/lterm.h main/intr.h main/intr.c \
 main/time.c main/time.h main/system.c main/system.h main/semaphore.c main/semaphore.h \
@@ -62,7 +63,7 @@ cleanup:
 	(cd main; make clean)
 
 clean: cleanup
-	rm -f boot.img iso.img
+	rm -f boot.img os.iso
 
 test:
 	objdump --target=binary --architecture=i8086 --disassemble-all os
