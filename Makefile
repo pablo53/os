@@ -8,6 +8,11 @@ all: boot.img tools/cdboot
 	rm -f iso.img
 	tools/cdboot boot.img iso.img
 
+vmdk: os.vmdk
+
+os.vmdk: boot.img
+	qemu-img convert boot.img -O vmdk os.vmdk
+
 boot.img: os main.bin tools/algnfl tools/asecfl
 	cat os > boot.img
 	cat main.bin >> boot.img
@@ -67,4 +72,4 @@ clean: cleanup
 test:
 	objdump --target=binary --architecture=i8086 --disassemble-all os
 
-.PHONY: clean cleanup test all info
+.PHONY: clean cleanup test all info vmdk
