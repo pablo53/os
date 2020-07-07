@@ -68,6 +68,7 @@ cleanup:
 
 clean: cleanup
 	rm -f boot.img iso.img
+	rm -f *.vmdk
 
 test:
 	objdump --target=binary --architecture=i8086 --disassemble-all os
