@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-Wall -ansi -std=c99 -pedantic -m32 -fno-pic -fno-stack-protector
+CFLAGS=-Wall -ansi -std=c99 -pedantic -m32 -fno-pic -fno-stack-protector -nostartfiles -nostdlib -nodefaultlibs
 
 all: ide.o
 

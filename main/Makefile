@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-Wall -ansi -std=c99 -pedantic -m32 -fno-pic -fno-stack-protector
+CFLAGS=-Wall -ansi -std=c99 -pedantic -m32 -fno-pic -fno-stack-protector -nostartfiles -nostdlib -nodefaultlibs
 
 all: apic.o cpu.o dma.o intr.o keyboard.o kmalloc.o lterm.o memory.o semaphore.o system.o time.o
 

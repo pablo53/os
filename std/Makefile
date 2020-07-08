@@ -1,7 +1,7 @@
 CC=gcc
 AS=as
 LD=ld
-CFLAGS=-Wall -ansi -std=c99 -pedantic -O0 -m32 -fno-pic -fno-stack-protector
+CFLAGS=-Wall -ansi -std=c99 -pedantic -O0 -m32 -fno-pic -fno-stack-protector -nostartfiles -nostdlib -nodefaultlibs
 
 all: string.o math.o
 
