@@ -490,12 +490,43 @@ _txt_max_sector:
 
 
 # GDT - Global Descriptor Table
-	
+
+#                      ___________________________ ___________________________ _____________________
+#                     /      C_C_CODE_LENGTH      V    MAIN_C_STACK_LENGTH    V  BOOT_STACK_LENGTH  \
+#
+#   +-----------------+---------------------------+---------------------------+---------------------+
+#   |                 |                           |                           |                     |
+#   |   Boot Loader   |           C Code          |          C Stack          |      Boot Stack     |
+#   |                 |                           |                           |                     |
+#   +-----------------+---------------------------+---------------------------+---------------------+
+#                     ^                           ^                           ^
+# 7C00h         MAIN_C_START              KERNEL_DATA_START              MAIN_C_AFTER
+#                     =                                                       =
+#          MAIN_C_STACK_BASE_ADDR                                    BOOT_STACK_BASE_ADDR
+#                     |                                                       |                     *
+#                     |                                                       \----------> BOOT_STACK_LIMIT_OFFS
+#                     |
+#                     |                                                       *
+#                     \-----------------------------------------> MAIN_C_STACK_LIMIT_OFFS
+
+MAIN_C_START       = 0x7c00 + (_main_c - _start)
+KERNEL_DATA_START  = MAIN_C_START + C_C_CODE_LENGTH
+
+MAIN_C_CODE_BASE_ADDR    = MAIN_C_START
+MAIN_C_CODE_LIMIT_OFFS   = C_C_CODE_LENGTH - 1
+
+MAIN_C_STACK_LENGTH      = 0x00008000
+MAIN_C_STACK_BASE_ADDR   = MAIN_C_START   # need consistency between function pointers, data, and stack; be carefull not to overflow to C code!
+MAIN_C_STACK_LIMIT_OFFS  = (C_C_CODE_LENGTH + MAIN_C_STACK_LENGTH) & 0xfffff000 + 0x00000fff  # (aligning to the last byte of the last 4kB) this will be an expanding-up type segment!
+MAIN_C_AFTER             = MAIN_C_STACK_LIMIT_OFFS + 1  # this is aligned to 4kB
+
+MAIN_C_DATA_BASE_ADDR    = MAIN_C_STACK_BASE_ADDR
+
+BOOT_STACK_LENGTH      = 0x1000  # 4kB
+BOOT_STACK_BASE_ADDR   = MAIN_C_AFTER
+BOOT_STACK_LIMIT_OFFS  = BOOT_STACK_LENGTH - 1  # this will be an expanding-up segment of 1B granularity
+
 	.align 8,0x00  # Filling free space with 0x00 (instead of junks).
-
-BOOT_STACK_BASE_ADDR  = 0x7c00 + _main_c + C_C_CODE_LENGTH
-
-
 _gdt:
 _gdt_null:
 	.word 0x0000  # segment length - bits 0..15
@@ -519,12 +550,12 @@ _gdt_boot_data:
 	.byte 0x40    # segment lenght - bits 16..19 - and attributes (1b granularity, 32-bit default)
 	.byte 0x00    # base address - bits 24..31
 _gdt_boot_stack:
-	.word 0x0000                          # segment limit - bits 0..15 (just above the C code ends)
-	.word 0x0000                          # base address - bits 0..15 (just above the C code ends) FUCK! To be initialized at run-time...
-	.byte 0x00                            # base address - bits 16..23  FUCK! To be initialized at run-time...
-	.byte 0x96                            # segment type and attributes (present, DPL=0, memory segment descriptor, data+down_expanding, not yet accessed)
-	.byte 0x00                            # segment limit - bits 16..19 - and attributes (1b granularity, max offset at 64Kb)
-	.byte 0x00                            # base address - bits 24..31
+	.word BOOT_STACK_LIMIT_OFFS & 0xffff               # segment limit - bits 0..15 (just above the C code ends)
+	.word BOOT_STACK_BASE_ADDR & 0xffff                # base address - bits 0..15 (just above the C code ends)
+	.byte (BOOT_STACK_BASE_ADDR >> 16) & 0xff          # base address - bits 16..23
+	.byte 0x92                                         # segment type and attributes (present, DPL=0, memory segment descriptor, data_r/w+expand_up, not yet accessed)
+	.byte (BOOT_STACK_LIMIT_OFFS >> 16) & 0x0f + 0x00  # segment limit - bits 16..19 - and attributes (1b granularity, max offset at 64Kb)
+	.byte (BOOT_STACK_BASE_ADDR >> 24) & 0xff          # base address - bits 24..31
 _gdt_kernel_big_seg:
 	.word 0xffff  # segment length - bits 0..15 (4Gb for its granularity)
 	.word 0x0000  # base address - bits 0..15 (0x00000000)
@@ -554,26 +585,26 @@ _gdt_video_ram:
 	.byte 0x40    # segment lenght - bits 16..19 - and attributes (1b granularity, 32-bit default)
 	.byte 0x00    # base address - bits 24..31
 _gdt_main_c_code:
-	.word 0x83ff          # segment length - bits 0..15 (609Kb)
-	.word 0x7c00+_main_c  # base address - bits 0..15 (0x00007c00 - like boot segment)
-	.byte 0x00            # base address - bits 16..23
-	.byte 0x9a            # segment type and attributes (present, DPL=0, memory segment descriptor, code+readable, not yet accessed)
-	.byte 0x49            # segment lenght - bits 16..19 (609Kb) - and attributes (1B granularity, 32-bit default)
-	.byte 0x00            # base address - bits 24..31
+	.word MAIN_C_CODE_LIMIT_OFFS & 0xffff               # segment length - bits 0..15
+	.word MAIN_C_CODE_BASE_ADDR & 0xffff                # base address - bits 0..15
+	.byte (MAIN_C_CODE_BASE_ADDR >> 16) & 0xff          # base address - bits 16..23
+	.byte 0x9a                                          # segment type and attributes (present, DPL=0, memory segment descriptor, code+readable, not yet accessed)
+	.byte (MAIN_C_CODE_LIMIT_OFFS >> 16) & 0x0f + 0x40  # segment lenght - bits 16..19 - and attributes (1B granularity, 32-bit default)
+	.byte (MAIN_C_CODE_BASE_ADDR >> 24) & 0xff          # base address - bits 24..31
 _gdt_main_c_data:
 	.word 0xffff          # segment length - bits 0..15 (max.)
-	.word 0x7c00+_main_c  # base address - bits 0..15 (0x00007c00 - like boot segment)
-	.byte 0x00            # base address - bits 16..23
+	.word MAIN_C_DATA_BASE_ADDR & 0xffff        # base address - bits 0..15
+	.byte (MAIN_C_DATA_BASE_ADDR >> 16) & 0xff  # base address - bits 16..23
 	.byte 0x92            # segment type and attributes (present, DPL=0, memory segment descriptor, data_r/w, not yet accessed)
 	.byte 0xcf            # segment lenght - bits 16..19 (max.) - and attributes (4KB granularity, 32-bit default)
-	.byte 0x00            # base address - bits 24..31
+	.byte (MAIN_C_DATA_BASE_ADDR >> 24) & 0xff  # base address - bits 24..31
 _gdt_main_c_stack:
-	.word C_C_CODE_LENGTH     # segment limit - bits 0..15 (64Kb - area occupied by C code)
-	.word 0x7c00+_main_c      # base address - bits 0..15 (64Kb after C code begin)
-	.byte 0x00                # base address - bits 16..23
-	.byte 0x96                # segment type and attributes (present, DPL=0, memory segment descriptor, data_r/w+expand down, not yet accessed)
-	.byte 0x00                # segment limit - bits 16..19  - and attributes (1B granularity, 16-bit max offset: 0xffff)
-	.byte 0x00                # base address - bits 24..31
+	.word (MAIN_C_STACK_LIMIT_OFFS >> 12) & 0xffff             # segment limit - bits 0..15
+	.word MAIN_C_STACK_BASE_ADDR & 0xffff                      # base address - bits 0..15
+	.byte (MAIN_C_STACK_BASE_ADDR >> 16) & 0xff                # base address - bits 16..23
+	.byte 0x92                                                 # segment type and attributes (present, DPL=0, memory segment descriptor, data_r/w+expand up, not yet accessed)
+	.byte (MAIN_C_STACK_LIMIT_OFFS >> 16 >> 12) & 0x0f + 0xc0  # segment limit - bits 16..19  - and attributes (4KB granularity, 32-bit offset)
+	.byte (MAIN_C_STACK_BASE_ADDR >> 24) & 0xff                # base address - bits 24..31
 _gdt_end:
 
 # Segment selectors for GDT, with RPL=0:
@@ -599,21 +630,7 @@ _idt_desc_null:
 	.long 0x00000000
 
 
-BOOT_STACK_BASE_ADDR  = 0x7c00 + _main_c + C_C_CODE_LENGTH
-
-_boot_stack_base_addr:
-	.long BOOT_STACK_BASE_ADDR  # Waste of memory. Fucking GAS made me do this...
-	
 _prepare_protected_mode:
-
-# First of all, clean up the shit put by GAS. Since BOOT_STACK_BASE_ADDR constant contains
-# offsets it can be used in formulas with no operators but +, -. No % or & allowed, so
-# we are unable to split this 24 bit address into 2 pieces: 16 lower bits and 8 upper bits.
-# (Fuck! Fuck! Fuck! Why???). So, we must do it programatically - at run-time...
-	mov _boot_stack_base_addr,%ax
-	mov %ax,_gdt_boot_stack+2
-	mov _boot_stack_base_addr+2,%al
-	mov %al,_gdt_boot_stack+4
 
 # Mask interrupts.
 	mov $0xff,%al  # Mask 8257A interrupts:
@@ -836,11 +853,11 @@ _cmpstr_end32:
 # Const area (this time - for 32-bit code)
 
 _boot_ss_desc32:
-	.long 0x0000fffc
+	.long BOOT_STACK_LIMIT_OFFS + 1  # point to the first byte beyond the (expanding-up type) stack segment
 	.word GDT_BOOT_STACK
 
 _main_c_ss_desc32:
-	.long C_C_CODE_LENGTH + C_C_STACK_LENGTH
+	.long MAIN_C_STACK_LIMIT_OFFS + 1  # point to the first byte beyond the (expanding-up type) stack segment
 	.word GDT_MAIN_C_STACK
 
 _txt_prot_mod:
@@ -848,7 +865,6 @@ _txt_prot_mod:
 	.byte 0
 
 C_ENTRY_POINT = 0x00000000
-C_C_STACK_LENGTH = 0x00008000
 
 # Entering C code.
 
