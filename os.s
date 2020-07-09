@@ -864,7 +864,6 @@ _txt_prot_mod:
 	.ascii "Protected mode entered."
 	.byte 0
 
-C_ENTRY_POINT = 0x00000000
 
 # Entering C code.
 
@@ -879,8 +878,8 @@ _prepare_enter_c:
 	mov %eax,4(%esp)                               # Second argument - by convention - is 4 bytes below.
 	mov _mmap_length,%eax                          # [3] Memory map length.
 	mov %eax,8(%esp)                               # Third argument - by convention - is...
-	mov $C_ENTRY_POINT,%eax  # If the first C function tries to return, it will
-	push %eax                # return to address 0x00000000 - hence itself.
+	mov _sys_halt32,%eax  # If the first C function tries to return, it will
+	push %eax             # return to the system halt.
 	mov $GDT_MAIN_C_DATA,%ax
 	mov %ax,%ds
 	mov %ax,%es
@@ -898,7 +897,7 @@ _sys_halt32:
 _main_c:
 # C code compiled to binary format should be appended here... Its addresses
 # should start at 0x00000000 (i.e. ".org 0"), since GDT_MAIN_C segment
-# selector defines a segment that starts here. First routine at 0x00000000
+# selector defines a segment that starts here. First routine at :C_ENTRY_POINT
 # should return the entry point (32 bit pointer). Successful return from
 # this routine is the very first check of C code being correctly linked.
 

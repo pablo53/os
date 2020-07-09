@@ -30,6 +30,7 @@ os_const.s: main.bin tools/ffsize tools/fabss main.mmap.txt
 	$(shell grep '^\.bss\s*0x[0-9a-fA-F]*\s*0x[0-9a-fA-F]*\s*' main.mmap.txt | tr -s ' ' | cut -d' ' -f2-3 | sed 's:^:tools/fabss main.bin :')
 	tools/ffsize -s512 main.bin "\nC_SECTORS = %d\n" > os_const.s
 	tools/ffsize -a8 main.bin "\nC_C_CODE_LENGTH = %d\n" >> os_const.s
+	echo "\nC_ENTRY_POINT = $(shell grep '^\s*0x[0-9a-fA-F]*\s*_start\s*' main.mmap.txt | tr -s ' ' | cut -d' ' -f2)" >> os_const.s
 
 main.bin main.mmap.txt: main.o
 	$(LD) $(LDFLAGS) -Map main.mmap.txt --oformat binary -Ttext 0 -o main.bin main.o
