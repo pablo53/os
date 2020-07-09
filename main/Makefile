@@ -3,9 +3,9 @@ LD=ld
 CFLAGS=-Wall -ansi -std=c99 -pedantic -m32 -fno-pic -fno-stack-protector -nostartfiles -nostdlib -nodefaultlibs
 LDFLAGS=-m elf_i386
 
-all: main.o
+all: all.o
 
-main.o: apic.o cpu.o dma.o intr.o keyboard.o kmalloc.o lterm.o memory.o semaphore.o system.o time.o
+all.o: apic.o cpu.o dma.o intr.o keyboard.o kmalloc.o lterm.o memory.o semaphore.o system.o time.o
 	$(LD) $(LDFLAGS) -r $^ -o $@
 	rm -f $^
 
@@ -30,7 +30,7 @@ kmalloc.o: kmalloc.h kmalloc.c ../globals.h ../asm/types.h ../asm/segments.h ../
 lterm.o: lterm.h lterm.c ../globals.h ../asm/types.h ../std/string.h ../std/math.h system.h
 	$(CC) $(CFLAGS) -c lterm.c -o lterm.o
 
-memory.o: memory.h memory.c ../globals.h ../asm/types.h intr.h lterm.h system.h
+memory.o: memory.h memory.c ../globals.h ../asm/types.h ../std/math_defs.h intr.h lterm.h system.h
 	$(CC) $(CFLAGS) -c memory.c -o memory.o
 
 semaphore.o: semaphore.h semaphore.c ../globals.h ../asm/types.h

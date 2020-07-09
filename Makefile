@@ -14,9 +14,9 @@ vmdk: os.vmdk
 os.vmdk: boot.img
 	qemu-img convert boot.img -O vmdk os.vmdk
 
-boot.img: os main.bin tools/algnfl tools/asecfl
+boot.img: os all.bin tools/algnfl tools/asecfl
 	cat os > boot.img
-	cat main.bin >> boot.img
+	cat all.bin >> boot.img
 	tools/algnfl boot.img
 	tools/asecfl boot.img
 
@@ -26,22 +26,26 @@ os: os.o
 os.o: os.s os_const.s
 	$(AS) $(AFLAGS) -o os.o os.s
 
-os_const.s: main.bin tools/ffsize tools/fabss main.mmap.txt
-	$(shell grep '^\.bss\s*0x[0-9a-fA-F]*\s*0x[0-9a-fA-F]*\s*' main.mmap.txt | tr -s ' ' | cut -d' ' -f2-3 | sed 's:^:tools/fabss main.bin :')
-	tools/ffsize -s512 main.bin "\nC_SECTORS = %d\n" > os_const.s
-	tools/ffsize -a8 main.bin "\nC_C_CODE_LENGTH = %d\n" >> os_const.s
-	echo "\nC_ENTRY_POINT = $(shell grep '^\s*0x[0-9a-fA-F]*\s*_start\s*' main.mmap.txt | tr -s ' ' | cut -d' ' -f2)" >> os_const.s
+os_const.s: all.bin tools/ffsize tools/fabss all.mmap.txt
+	$(shell grep '^\.bss\s*0x[0-9a-fA-F]*\s*0x[0-9a-fA-F]*\s*' all.mmap.txt | tr -s ' ' | cut -d' ' -f2-3 | sed 's:^:tools/fabss all.bin :')
+	tools/ffsize -s512 all.bin "\nC_SECTORS = %d\n" > os_const.s
+	tools/ffsize -a8 all.bin "\nC_C_CODE_LENGTH = %d\n" >> os_const.s
+	echo "\nC_ENTRY_POINT = $(shell grep '^\s*0x[0-9a-fA-F]*\s*_start\s*' all.mmap.txt | tr -s ' ' | cut -d' ' -f2)" >> os_const.s
 
-main.bin main.mmap.txt: main.o
-	$(LD) $(LDFLAGS) -Map main.mmap.txt --oformat binary -Ttext 0 -o main.bin main.o
+all.bin all.mmap.txt: all.o
+	$(LD) $(LDFLAGS) -Map all.mmap.txt --oformat binary -Ttext 0 -o all.bin all.o
 
-main.o: main.c main.h main/lterm.c main/lterm.h main/intr.h main/intr.c \
-main/time.c main/time.h main/system.c main/system.h main/semaphore.c main/semaphore.h \
-main/keyboard.c main/keyboard.h main/memory.c main/memory.h main/dma.c main/dma.h \
-std/string.c std/string.h std/math.c std/math.h main/kmalloc.c main/kmalloc.h \
-main/cpu.c main/cpu.h main/apic.c main/apic.h main/err.h dev/ide.c dev/ide.h \
-asm/types.h asm/i386.h asm/segments.h asm/descriptor.h
+all.o: main.o main/all.o std/all.o
+	$(LD) $(LDFLAGS) -r $^ -o $@
+
+main.o: main.c main.h
 	$(CC) $(CFLAGS) -c main.c -o main.o
+
+std/all.o:
+	(cd std; make)
+
+main/all.o:
+	(cd main; make)
 
 tools/algnfl:
 	(cd tools; make)

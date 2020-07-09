@@ -18,6 +18,7 @@
  * CANNOT FREE any semaphore it had not overtaken previously.
  */
 #define DEF_WAIT_SEM(sem_nm) __asm__ ( \
+        ".global _semsect_wait_" #sem_nm " \n\t" \
         "_semsect_wait_" #sem_nm ": \n\t" \
         "mov $1,%eax \n\t" \
         "_semsect_loop_" #sem_nm ": \n\t" \
@@ -39,6 +40,7 @@
  * possibilty of deadlocks.
  */
 #define DEF_NOWAIT_SEM(sem_nm) __asm__ ( \
+        ".global _semsect_nowait_" #sem_nm " \n\t" \
         "_semsect_nowait_" #sem_nm ": \n\t" \
         "mov $1,%eax \n\t" \
         "_semsect_loop2_" #sem_nm ": \n\t" \
@@ -53,6 +55,10 @@
   volatile u32 _semvar_##sem_nm; \
   DEF_WAIT_SEM(sem_nm); \
   DEF_NOWAIT_SEM(sem_nm)
+
+/* Declares usage of a semaphore defined elsewhere. */
+#define DECL_SEMAPHORE(sem_nm) \
+  volatile u32 _semvar_##sem_nm 
 
 /* Actual semaphore value (resolved to variable). */
 #define SEMAPHORE(sem_nm) _semvar_##sem_nm
@@ -80,6 +86,10 @@
         : \
         : "%eax" \
         )
+
+
+
+DECL_SEMAPHORE(main_latch);
 
 
 #endif

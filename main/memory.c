@@ -18,6 +18,7 @@
 #include "lterm.h"
 #include "system.h"
 #endif
+#include "../std/math_defs.h"
 
 
 /*
