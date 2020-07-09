@@ -64,6 +64,8 @@
 
 #define TEST_LAPIC_PRES() (cpu_feature1 & CPUID_FEATURE1_APIC)
 
+char * lapic_reg; /* Local APIC registers map. */
+int lapic_pres; /* Is Local APIC present on-chip? */
 void init_apic(void);
 
 
