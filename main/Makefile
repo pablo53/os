@@ -1,7 +1,13 @@
 CC=gcc
+LD=ld
 CFLAGS=-Wall -ansi -std=c99 -pedantic -m32 -fno-pic -fno-stack-protector -nostartfiles -nostdlib -nodefaultlibs
+LDFLAGS=-m elf_i386
 
-all: apic.o cpu.o dma.o intr.o keyboard.o kmalloc.o lterm.o memory.o semaphore.o system.o time.o
+all: main.o
+
+main.o: apic.o cpu.o dma.o intr.o keyboard.o kmalloc.o lterm.o memory.o semaphore.o system.o time.o
+	$(LD) $(LDFLAGS) -r $^ -o $@
+	rm -f $^
 
 apic.o: apic.h apic.c cpu.h cpu.o memory.h ../globals.h ../asm/i386.h ../asm/types.h
 	$(CC) $(CFLAGS) -c apic.c -o apic.o
