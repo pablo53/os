@@ -4,6 +4,7 @@
  */
 
 #ifndef _GLOBALS_H
+#define _GLOBALS_H 1
 
 
 #define CONFIG_PIC_8259A     1
