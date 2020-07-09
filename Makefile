@@ -38,7 +38,7 @@ all.bin all.mmap.txt: all.o
 all.o: main.o main/all.o std/all.o
 	$(LD) $(LDFLAGS) -r $^ -o $@
 
-main.o: main.c main.h
+main.o: main.c main.h main/all.h std/all.h
 	$(CC) $(CFLAGS) -c main.c -o main.o
 
 std/all.o:

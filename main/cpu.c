@@ -10,11 +10,7 @@
 
 #include "../asm/types.h"
 #include "../asm/i386.h"
-#ifdef MAIN_STATIC_LINKED
-#include "../std/string.c"
-#else
 #include "../std/string.h"
-#endif
 
 int cpuidsupp = 0; /* Is CPUID instruction supported? */
 u32 maxcpuid = 0; /* Max codethat CPUID can recognize. */

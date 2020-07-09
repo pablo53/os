@@ -331,19 +331,19 @@
 #define IA32_TSC_AUX                 0xc0000103
 
 
-int cpuidsupp; /* Is CPUID instruction supported? */
-u32 maxcpuid; /* Max codethat CPUID can recognize. */
-char cpu_name[13]; /* ASCII name - as returned by CPUID:00h in EBX:EDX:ECX. */
-int cpu_type; /* CPU Type */
-int cpu_family; /* CPU Family # */
-int cpu_model; /* CPU Model # */
-int cpu_stepid; /* Stepping ID */
-int cpu_brand; /* Brand index */
-int cpu_max_cpu; /* Maximum number of addressable processor logical IDs. */
-int apic_id; /* Initial APIC ID */
-u32 cpu_feature0; /* CPUID.01H[ECX] value. */
-u32 cpu_feature1; /* CPUID.01H[EDX] value. */
-int msrsupp; /* Is MSR supported? (based on cpu feature 1) */
+extern int cpuidsupp; /* Is CPUID instruction supported? */
+extern u32 maxcpuid; /* Max codethat CPUID can recognize. */
+extern char cpu_name[13]; /* ASCII name - as returned by CPUID:00h in EBX:EDX:ECX. */
+extern int cpu_type; /* CPU Type */
+extern int cpu_family; /* CPU Family # */
+extern int cpu_model; /* CPU Model # */
+extern int cpu_stepid; /* Stepping ID */
+extern int cpu_brand; /* Brand index */
+extern int cpu_max_cpu; /* Maximum number of addressable processor logical IDs. */
+extern int apic_id; /* Initial APIC ID */
+extern u32 cpu_feature0; /* CPUID.01H[ECX] value. */
+extern u32 cpu_feature1; /* CPUID.01H[EDX] value. */
+extern int msrsupp; /* Is MSR supported? (based on cpu feature 1) */
 
 
 typedef struct

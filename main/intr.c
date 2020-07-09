@@ -13,13 +13,8 @@
 #include "intr.h"
 #include "../asm/i386.h"
 #include "../asm/segments.h"
-#ifdef MAIN_STATIC_LINKED
-#include "lterm.c"
-#include "system.c"
-#else
 #include "lterm.h"
 #include "system.h"
-#endif
 
 volatile idt_t idt;  /* IDT */
 

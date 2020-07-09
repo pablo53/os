@@ -13,19 +13,12 @@
 #include "apic.h"
 #include "../asm/i386.h"
 #include "../asm/types.h"
-#ifdef MAIN_STATIC_LINKED
-#include "memory.c"
-#include "cpu.c"
-#else
 #include "memory.h"
 #include "cpu.h"
-#endif
 
-#ifndef MAIN_STATIC_LINKED
-extern u32 cpu_feature1;
-extern int msrsupp;
-extern ptr_t ph_addr;
-#endif
+//extern u32 cpu_feature1;
+//extern int msrsupp;
+//extern ptr_t ph_addr;
 
 char * lapic_reg = 0; /* Local APIC registers map. */
 int lapic_pres = 0; /* Is Local APIC present on-chip? */

@@ -13,11 +13,7 @@
 #include "system.h"
 #include "../asm/i386.h"
 #include "../asm/types.h"
-#ifdef MAIN_STATIC_LINKED
-#include "lterm.c"
-#else
 #include "lterm.h"
-#endif
 
 #ifdef CONFIG_MULTIPROCESSOR
 

@@ -13,15 +13,9 @@
 #include "../globals.h"
 #include "lterm.h"
 
-#ifdef MAIN_STATIC_LINKED
-#include "../std/string.c"
-#include "../std/math.c"
-#include "system.c"
-#else
 #include "../std/string.h"
 #include "../std/math.h"
 #include "system.h"
-#endif
 
 #include <stdarg.h>
 

@@ -58,7 +58,7 @@
 
 /* Declares usage of a semaphore defined elsewhere. */
 #define DECL_SEMAPHORE(sem_nm) \
-  volatile u32 _semvar_##sem_nm 
+  extern volatile u32 _semvar_##sem_nm 
 
 /* Actual semaphore value (resolved to variable). */
 #define SEMAPHORE(sem_nm) _semvar_##sem_nm

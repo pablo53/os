@@ -13,21 +13,11 @@
 #include "../asm/types.h"
 #include "../asm/segments.h"
 #include "err.h"
-#ifdef MAIN_STATIC_LINKED
-#include "memory.c"
-#include "system.c"
-#include "lterm.c"
-#include "../std/math.c"
-#else
 #include "memory.h"
 #include "system.h"
 #include "lterm.h"
-#include "../std/math.h"
-#endif
+#include "../std/math_defs.h"
 
-#ifndef MAIN_STATIC_LINKED
-extern ptr_t ph_addr;
-#endif
 
 #define PG_BITMAPS 1024
 #define PG_BITMAP_SIZE 128

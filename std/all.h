@@ -1,5 +1,5 @@
-#ifndef _STD_STD_H
-#define _STD_STD_H 1
+#ifndef _STD_ALL_H
+#define _STD_ALL_H 1
 
 
 #include "math.h"

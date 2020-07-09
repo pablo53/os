@@ -9,15 +9,9 @@
 #include "../globals.h"
 #include "memory.h"
 
-#ifdef MAIN_STATIC_LINKED
-#include "intr.c"
-#include "lterm.c"
-#include "system.c"
-#else
 #include "intr.h"
 #include "lterm.h"
 #include "system.h"
-#endif
 #include "../std/math_defs.h"
 
 

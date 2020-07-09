@@ -9,6 +9,9 @@
 #include "../globals.h"
 #include "../asm/types.h"
 
+
+extern ptr_t ph_addr; /* Physical address of the beginning of the kernel's C code. */
+
 void init_sgmflth(void);
 void init_mem(ptr_t, ptr_t, msz_t);
 

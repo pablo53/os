@@ -13,15 +13,9 @@
 
 #include "../asm/i386.h"
 #include "../main/err.h"
-#ifdef MAIN_STATIC_LINKED
-#include "../main/time.c"
-#include "../main/system.c"
-#include "../main/semaphore.c"
-#else
 #include "../main/time.h"
 #include "../main/system.h"
 #include "../main/semaphore.h"
-#endif
 
 #include <stdarg.h>
 

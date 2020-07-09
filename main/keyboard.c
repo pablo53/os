@@ -12,13 +12,8 @@
 #include "../asm/i386.h"
 #include "../structures/buf.h"
 
-#ifdef MAIN_STATIC_LINKED
-#include "intr.c"
-#include "system.c"
-#else
 #include "intr.h"
 #include "system.h"
-#endif
 
 #ifdef CONFIG_KBD_8042
 

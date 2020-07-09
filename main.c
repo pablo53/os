@@ -28,20 +28,7 @@ void _start(ptr_t ph_addr, ptr_t mmap_addr, u32 mmap_length)
   }
 }
 
-#include "main/main.h"
-/*#define MAIN_STATIC_LINKED 1
-#include "main/lterm.c"
-#include "main/intr.c"
-#include "main/time.c"
-#include "main/system.c"
-#include "main/semaphore.c"
-#include "main/keyboard.c"
-#include "main/memory.c"
-#include "main/dma.c"
-#include "main/kmalloc.c"
-#include "main/cpu.c"
-#include "main/apic.c"
-#undef MAIN_STATIC_LINKED*/
+#include "main/all.h"
 
 
 static int test_int3 = 0; /* Set on INT#3 test success. */

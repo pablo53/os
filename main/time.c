@@ -13,11 +13,7 @@
 #include "time.h"
 
 #include "../asm/i386.h"
-#ifdef MAIN_STATIC_LINKED
-#include "intr.c"
-#else
 #include "intr.h"
-#endif
 
 #ifdef CONFIG_PIT_8253
 
