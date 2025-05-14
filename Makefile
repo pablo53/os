@@ -33,7 +33,7 @@ os_const.s: all.bin tools/ffsize tools/fabss all.mmap.txt
 	echo "\nC_ENTRY_POINT = $(shell grep '^\s*0x[0-9a-fA-F]*\s*_start\s*' all.mmap.txt | tr -s ' ' | cut -d' ' -f2)" >> os_const.s
 
 all.bin all.mmap.txt: all.o
-	$(LD) $(LDFLAGS) -Map all.mmap.txt --oformat binary -Ttext 0 -o all.bin all.o
+	$(LD) $(LDFLAGS) -Map all.mmap.txt --oformat binary -T all.ld -o all.bin all.o
 
 all.o: main.o main/all.o std/all.o
 	$(LD) $(LDFLAGS) -r $^ -o $@

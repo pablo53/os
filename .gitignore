@@ -50,3 +50,16 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+
+*.bin
+all.mmap.txt
+*.img
+*.iso
+os
+os_const.s
+tools/algnfl
+tools/asecfl
+tools/cdboot
+tools/fabss
+tools/ffsize
+*.log
